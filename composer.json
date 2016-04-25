@@ -1,0 +1,16 @@
+{
+    "name": "ngscz/nette-debugger",
+    "description": "Manage nette exception in browser",
+    "homepage": "https://github.com/ngscz/nette-debugger",
+    "keywords": ["nette", "debugger"],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.4",
+        "ext-mbstring": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "ngscz\\NetteDebugger\\": "src"
+        }
+    }
+}
