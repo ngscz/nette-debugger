@@ -3,8 +3,6 @@ namespace ngscz\NetteDebugger;
 
 use DOMDocument;
 
-//TODO vypsat datum, kdy výjimka nastala
-
 class Debugger {
 	
 	private $html = array();
@@ -121,6 +119,10 @@ class Debugger {
 			}			
 			
 			$tds[] = $this->renderContentTag('td', $title);
+			
+			$tds[] = $this->renderContentTag('td', 
+				date("j.n.Y H:i:s.", filectime($absPath))
+			);
 			
 			//options
 			$showLink = $this->renderContentTag('a', 'Show', array(
