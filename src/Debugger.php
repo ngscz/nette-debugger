@@ -4,7 +4,6 @@ namespace ngscz\NetteDebugger;
 use DOMDocument;
 
 //TODO vypsat datum, kdy výjimka nastala
-//TODO načítat externě bootstrap CSS
 
 class Debugger {
 	
@@ -32,6 +31,7 @@ class Debugger {
 			break;
 			
 			default:
+				$this->createHeader();
 				$this->createTopButtons();
 				$this->createLogTable();		
 			break;
@@ -44,7 +44,10 @@ class Debugger {
 	}
 	
 	private function renderHTML() {
-		echo implode('',$this->html);
+		echo 
+		sprintf('<div class="container">%s</div>', 
+			implode('',$this->html)
+		);
 	}
 	
 	private function deleteExceptionFile($file) {
@@ -62,13 +65,14 @@ class Debugger {
 		$this->redirectHome();
 	}
 	
-	private function clearLog() {
-		foreach (scandir($this->getLogDir()) as $file => $absPath) {
-			if (in_array($file, array('.', '..'))) continue;
-			if (strstr($file, '.html') || strstr($file, '.log')) {
+	private function clearLog() {		
+		foreach ($this->getLogFiles() as $file => $absPath) {
+			if (in_array($file, array('.', '..'))) continue;	
+			
+			if (strstr($file, '.html') || strstr($file, '.log')) {				
 				unlink($absPath);
 			}
-		}
+		}		
 		$this->redirectHome();
 	}
 	
@@ -86,12 +90,19 @@ class Debugger {
 		exit();
 	}
 	
+	private function createHeader() {
+		$header = $this->renderContentTag('h1', 'Nette Debugger');
+		$this->html[] = $this->renderContentTag('header', $header);
+	}
+	
 	private function createTopButtons() {
 		$this->html[] = $this->renderContentTag('a', 'Clear cache', array(
-			'href' => '?action=clearCache'
+			'href'  => '?action=clearCache',
+			'class' => 'btn btn-danger'
 		));
 		$this->html[] = $this->renderContentTag('a', 'Clear log', array(
-			'href' => '?action=clearLog'
+			'href'  => '?action=clearLog',
+			'class' => 'btn btn-danger'
 		));		
 	}
 	
@@ -114,10 +125,12 @@ class Debugger {
 			//options
 			$showLink = $this->renderContentTag('a', 'Show', array(
 				'target' => '_blank',
-				'href'	 => '?action=show&file=' . $file
+				'href'	 => '?action=show&file=' . $file,
+				'class'  => 'btn btn-success'
 			));
 			$deleteLink = $this->renderContentTag('a', 'Delete', array(				
-				'href'	 => '?action=delete&file=' . $file
+				'href'	 => '?action=delete&file=' . $file,
+				'class'  => 'btn btn-danger'
 			));
 			
 			$tds[] = $this->renderContentTag('td', $showLink . $deleteLink);
@@ -125,13 +138,18 @@ class Debugger {
 			$trs[] = $this->renderContentTag('tr', implode('',$tds));
 		}
 		
-		$table = $this->renderContentTag('table', implode('',$trs));
+		$table = $this->renderContentTag('table', implode('',$trs), array(
+			'class' => 'table table-bordered'
+		));
 		
 		$this->html[] = $table;		
 	}
 	
 	private function createCssStyles() {
-		$styles = $this->renderContentTag('style');
+		$styles = $this->renderContentTag('link', '', array(
+			'rel'  => 'stylesheet', 
+			'href' => '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'
+		));		
 		
 		$this->html[] = $styles;
 	}
