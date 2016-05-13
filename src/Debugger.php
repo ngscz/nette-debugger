@@ -109,14 +109,18 @@ class Debugger {
 		foreach ($this->getLogFiles() as $file => $absPath) {
 			$tds = array();
 			
-			
-			$content = file_get_contents($absPath);
-			$dom = new DOMDocument('1.0', 'UTF-8');
-			@$dom->loadHTML($content);        						
-			foreach ($dom->getElementsByTagName('title') as $elm) {
-					$title = $elm->nodeValue;
-					break;
-			}			
+			//exception files
+			if (strstr($absPath, '.html')) {
+				$content = file_get_contents($absPath);
+				$dom = new DOMDocument('1.0', 'UTF-8');
+				@$dom->loadHTML($content);        						
+				foreach ($dom->getElementsByTagName('title') as $elm) {
+						$title = $elm->nodeValue;
+						break;
+				}			
+			} else {
+				$title = $file;
+			}
 			
 			$tds[] = $this->renderContentTag('td', $title);
 			
@@ -178,7 +182,7 @@ class Debugger {
 		
 		foreach (scandir($logDir) as $file) {
 			if (in_array($file, array('.','..'))) continue;
-			if (!strstr($file, '.html')) continue;
+			
 			
 			$absPath = $logDir . DIRECTORY_SEPARATOR . $file;
 			
