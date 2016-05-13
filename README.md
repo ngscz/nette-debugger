@@ -8,7 +8,7 @@ Also add method to **clear cache and log** by clicking on button in browser.
 
 Use composer
 
-Via command line: `composer require ngscz/nette-debugger dev-master`.
+Via command line: `composer require ngscz/nette-debugger  "~1.0"`.
 
 ## Usage ##
 
