@@ -77,12 +77,16 @@ class Debugger {
 	private function createExceptionPage($file) {
 		$files = $this->getLogFiles();
 		if (isset($files[$file])) {
-			$this->html[] = file_get_contents($files[$file]);
+			if (strstr($file, '.html')) {
+				$this->html[] = file_get_contents($files[$file]);
+			} else {
+				$this->html[] = '<pre style="height: 100%">' . file_get_contents($files[$file]) . '</pre>';
+			}			
 		} else {
 			$this->html[] = 'Exception not found.';
 		}
-	}
-	
+	}		
+
 	private function redirectHome() {		
 		header(sprintf('Location: %s', $_SERVER['SCRIPT_NAME']));
 		exit();
@@ -102,12 +106,17 @@ class Debugger {
 			'href'  => '?action=clearLog',
 			'class' => 'btn btn-danger'
 		));		
+		$this->html[] = $this->renderContentTag('div', '&nbsp;', array(			
+			'class' => 'clearfix'
+		));		
+		
 	}
 	
 	private function createLogTable() {
 		$trs = array();
 		foreach ($this->getLogFiles() as $file => $absPath) {
 			$tds = array();
+			$createdAtTime = false;
 			
 			//exception files
 			if (strstr($absPath, '.html')) {
@@ -118,6 +127,16 @@ class Debugger {
 						$title = $elm->nodeValue;
 						break;
 				}			
+				foreach ($dom->getElementsByTagName('ul') as $ulElm) {
+					foreach ($ulElm->getElementsByTagName('li') as $liElm) {
+						$liValue = $liElm->nodeValue;
+						$liValue = trim(str_replace(array('Report generated at'), array(''), $liValue));
+						$createdAtTime = strtotime($liValue);
+						break;
+					}												
+					break;
+				}			
+				
 			} else {
 				$title = $file;
 			}
@@ -125,7 +144,7 @@ class Debugger {
 			$tds[] = $this->renderContentTag('td', $title);
 			
 			$tds[] = $this->renderContentTag('td', 
-				date("j.n.Y H:i:s.", filectime($absPath))
+				($createdAtTime)?date("j.n.Y H:i:s", $createdAtTime):' - '
 			);
 			
 			//options
@@ -145,10 +164,14 @@ class Debugger {
 		}
 		
 		$table = $this->renderContentTag('table', implode('',$trs), array(
-			'class' => 'table table-bordered'
+			'class' => 'table table-bordered table-striped'
 		));
 		
-		$this->html[] = $table;		
+		$div = $this->renderContentTag('div', $table, array(
+			'class'	=> 'table-responsive'
+		));
+		
+		$this->html[] = $div;		
 	}
 	
 	private function createCssStyles() {
